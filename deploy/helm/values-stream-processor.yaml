@@ -1,0 +1,31 @@
+fullnameOverride: stream-processor
+nameOverride: stream-processor
+kind: worker
+
+image:
+  repository: REPLACE_ECR/urbanmove/stream-processor
+  tag: latest
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+env:
+  - name: METRICS_PORT
+    value: "9090"
+  - name: AWS_REGION
+    value: eu-west-3
+
+envFrom:
+  - configMapRef:
+      name: urbanmove-config

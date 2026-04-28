@@ -1,0 +1,31 @@
+fullnameOverride: mobility-api
+nameOverride: mobility-api
+kind: web
+
+image:
+  repository: REPLACE_ECR/urbanmove/mobility-api
+  tag: latest
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 60
+
+env:
+  - name: LOG_LEVEL
+    value: info
+  - name: AWS_REGION
+    value: eu-west-3
+
+envFrom:
+  - configMapRef:
+      name: urbanmove-config
