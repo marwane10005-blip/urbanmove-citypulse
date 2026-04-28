@@ -1,0 +1,28 @@
+image:
+  repository: REPLACE_ECR/urbanmove/db-migrate
+  tag: latest
+
+env:
+  - name: AWS_REGION
+    value: eu-west-3
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_NAME
+    value: "urbanmove"
+
+envFrom:
+  - configMapRef:
+      name: urbanmove-config
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceAccount:
+  create: true
+  name: db-migrate
+  annotations: {}

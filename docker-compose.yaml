@@ -1,0 +1,49 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: urbanmove
+      POSTGRES_PASSWORD: urbanmove
+      POSTGRES_DB: urbanmove
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U urbanmove -d urbanmove"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+
+  localstack:
+    image: localstack/localstack:3.8
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: kinesis,s3,secretsmanager,dynamodb,iot
+      DEFAULT_REGION: eu-west-3
+      DEBUG: "0"
+    volumes:
+      - localstack:/var/lib/localstack
+
+volumes:
+  pgdata:
+  localstack:

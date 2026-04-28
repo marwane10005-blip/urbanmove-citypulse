@@ -1,0 +1,29 @@
+fullnameOverride: identity-fleet
+nameOverride: identity-fleet
+kind: web
+
+image:
+  repository: REPLACE_ECR/urbanmove/identity-fleet
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 65
+
+env:
+  - name: AWS_REGION
+    value: eu-west-3
+
+envFrom:
+  - configMapRef:
+      name: urbanmove-config
