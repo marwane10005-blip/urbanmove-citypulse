@@ -62,6 +62,9 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 
@@ -70,12 +73,17 @@ jobs:
           version: v3.14.0
 
       - name: Helm upgrade all services
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
+          set -euo pipefail
           for svc in mobility-api identity-fleet analytics-dashboard stream-processor dashboard-web; do
             helm upgrade --install "$svc" deploy/helm/common-service \
               -f deploy/helm/common-service/values.yaml \
               -f deploy/helm/values-"$svc".yaml \
-              --set image.tag=${{ github.sha }} \
+              --set image.repository="${ECR_REGISTRY}/urbanmove/${svc}" \
+              --set image.tag="${IMAGE_TAG}" \
               --namespace urbanmove \
               --create-namespace \
               --wait \
